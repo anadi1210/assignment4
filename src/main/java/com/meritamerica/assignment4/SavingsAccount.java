@@ -43,11 +43,11 @@ public class SavingsAccount extends BankAccount{
 			
 			SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 	    	Date date = dateFormatter.parse(dateString);
-			
+			//dateFormatter.format(date);
 			
 	    	SavingsAccount savingsAccount = new SavingsAccount(accountNumber,balance,interestRate,date);
 			//System.out.println("SavingsAccount call number : "+counter);
-			System.out.println("Date : "+date);
+			//System.out.println("Date : "+dateFormatter.format(date));
 			return savingsAccount;
 		}catch(Exception e) {
 			throw new java.lang.NumberFormatException();

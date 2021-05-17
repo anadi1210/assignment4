@@ -10,10 +10,11 @@ public class MeritBank {
 	//private static AccountHolder[] accountHolders = new AccountHolder[0];
 	private static List<AccountHolder> accHolderList = new ArrayList<AccountHolder>();
 	private static long nextAccountNumber;
+	private static List<BankAccount> bankAccountList = new ArrayList<BankAccount>();
 	//static int inputLineNum=0;
 	
-
-	
+	private static ArrayList<String> transactionList = new ArrayList<String>();
+	private static ArrayList<String> fraudList = new ArrayList<String>();
 	
 	/*
 	 * static void addAccountHolder(AccountHolder accountHolder) { 
@@ -27,7 +28,7 @@ public class MeritBank {
 
 	static void addAccountHolder(AccountHolder accountHolder) {
 		accHolderList.add(accountHolder);
-		System.out.println("Account holder list size : "+accHolderList.size());
+		//System.out.println("Account holder list size : "+accHolderList.size());
 	}
 	
 	static void resetPreviousData() {
@@ -35,6 +36,9 @@ public class MeritBank {
 		CDOffering.clearCDOfferingArray();
 		//accountHolders = new AccountHolder[0];
 		accHolderList.clear();
+		transactionList.clear();
+		fraudList.clear();
+		bankAccountList.clear();
 	}
 
 	//static String[] readNextLine()
@@ -75,10 +79,10 @@ public class MeritBank {
 					if(reader.hasNextLine() == false) {break;}
 					line = reader.nextLine();
 					CDOffering offering = CDOffering.readFromString(line);
-					System.out.println("CD Offering ["+ i +"] created");
+					//System.out.println("CD Offering ["+ i +"] created");
 				}
 				
-				// reading line number 6
+				// reading line number 6 --> Number of Account holders
 				if(reader.hasNextLine() == false) {break;}
 				line = reader.nextLine(); 
 				dataSplit = line.split(",");
@@ -103,7 +107,8 @@ public class MeritBank {
 								if(reader.hasNextLine() == false) {break;}
 								line = reader.nextLine();
 								CheckingAccount checkingAccount = CheckingAccount.readFromString(line);
-								accountHolder.addCheckingAccount(checkingAccount.getBalance());
+								accountHolder.addCheckingAccount(checkingAccount);
+								bankAccountList.add(checkingAccount);
 								
 								// reading no of transactions for current checking account
 								if(reader.hasNextLine() == false) {break;}
@@ -116,61 +121,166 @@ public class MeritBank {
 									for(int k = 0; k < noOfCheckingAccountTransaction; k++) {
 										if(reader.hasNextLine() == false) {break;}
 										line = reader.nextLine();
-										dataSplit = line.split(",");
-										
-										long srcAcc = Long.parseLong(dataSplit[0]);
-										long tarAcc = Long.parseLong(dataSplit[1]);
-										double amount = Double.parseDouble(dataSplit[2]);
-										
-										SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-								    	Date date = dateFormatter.parse(dataSplit[3]);
-										
-								    	System.out.println("point 1");
-								    	// deposit/withdrawal 
-								    	if(srcAcc == -1) {
-								    		
-								    		if(amount > 0) {
-								    			System.out.println("point 2");
-								    			DepositTransaction depositTr = new DepositTransaction(checkingAccount, amount);
-								    			System.out.println("point 3");
-								    			MeritBank.processTransaction(depositTr);
-								    			
-								    		}else if(amount < 0) {
-								    			WithdrawTransaction withdrawTr =  new WithdrawTransaction(checkingAccount, amount);
-								    			MeritBank.processTransaction(withdrawTr);
-								    		}else {
-								    			System.out.println("Amount 0 can not be deposited or withdraw");
-								    		}
-								    	}
-								    	// transfer
-								    	else {
-								    		
-								    	}
-								    	System.out.println("last");
+										transactionList.add(line);
+								    	//System.out.println("last");
 									}
 								}
 							}
 						}
-					
+						
+						// reading no of savings accounts for current account holder	
+						if(reader.hasNextLine() == false) {break;}
+						line = reader.nextLine();
+						dataSplit = line.split(",");
+						int noOfSavingsAccount = Integer.parseInt(dataSplit[0]); 	
 							
+						// creating Savings accounts for current account holder
+						if(noOfSavingsAccount > 0) {
+							for(int j=0;j<noOfSavingsAccount;j++) {
+								if(reader.hasNextLine() == false) {break;}
+								line = reader.nextLine();
+								SavingsAccount savingsAccount = SavingsAccount.readFromString(line);
+								accountHolder.addSavingsAccount(savingsAccount);
+								bankAccountList.add(savingsAccount);
+								
+								// reading no of transactions for current savings account
+								if(reader.hasNextLine() == false) {break;}
+								line = reader.nextLine();
+								dataSplit = line.split(",");
+								int noOfsavingsAccountTransaction = Integer.parseInt(dataSplit[0]);
+								
+								// creating transaction for current checking account
+								if(noOfsavingsAccountTransaction > 0) {
+									for(int k = 0; k < noOfsavingsAccountTransaction; k++) {
+										if(reader.hasNextLine() == false) {break;}
+										line = reader.nextLine();
+										transactionList.add(line);
+									}
+								}
+					
+							}
+						}
+					
+						// reading no of CD accounts for current account holder	
+						if(reader.hasNextLine() == false) {break;}
+						line = reader.nextLine();
+						dataSplit = line.split(",");
+						int noOfCDAccount = Integer.parseInt(dataSplit[0]); 	
 							
-							
+						// creating CD accounts for current account holder
+						if(noOfCDAccount > 0) {
+							for(int j=0;j<noOfCDAccount;j++) {
+								if(reader.hasNextLine() == false) {break;}
+								line = reader.nextLine();
+								CDAccount cdAccount = CDAccount.readFromString(line);
+								accountHolder.addCDAccount(cdAccount);
+								bankAccountList.add(cdAccount);
+								
+								// reading no of transactions for current CD account
+								if(reader.hasNextLine() == false) {break;}
+								line = reader.nextLine();
+								dataSplit = line.split(",");
+								int noOfCDAccountTransaction = Integer.parseInt(dataSplit[0]);
+								
+								// creating transaction for current checking account
+								if(noOfCDAccountTransaction > 0) {
+									for(int k = 0; k < noOfCDAccountTransaction; k++) {
+										if(reader.hasNextLine() == false) {break;}
+										line = reader.nextLine();
+										transactionList.add(line);
+									}
+								}
 					
+							}
+						}
+				}
+				// reading no of Fraud Queue transactions	
+				if(reader.hasNextLine() == false) {break;}
+				line = reader.nextLine();
+				dataSplit = line.split(",");
+				int noOfFraudQTransaction = Integer.parseInt(dataSplit[0]); 
+				
+				for(int j = 0;j<noOfFraudQTransaction;j++) {
+					if(reader.hasNextLine() == false) {break;}
+					line = reader.nextLine();
+					fraudList.add(line);
+				}
+				
+				//System.out.println("transactionList size : "+transactionList.size());
+				for(int i = 0; i< transactionList.size(); i++) {
+					String transactionLine = transactionList.get(i);
 					
+					dataSplit = transactionLine.split(",");
 					
+					long srcAccNum = Long.parseLong(dataSplit[0]);
+					long tarAccNum = Long.parseLong(dataSplit[1]);
+					double amount = Double.parseDouble(dataSplit[2]);
 					
-					
-					
-					
-					
+					SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+			    	Date date = dateFormatter.parse(dataSplit[3]);
+			    	
+			    	// deposit/withdrawal 
+			    	BankAccount sourceAccount = null;
+			    	BankAccount targetaccount =null ;
+			    	if(srcAccNum == -1) {
+			    		targetaccount = getBankAccount(tarAccNum);
+		    			sourceAccount = targetaccount;
+			    		if(amount > 0) {
+			    			
+			    			DepositTransaction depositTr = new DepositTransaction(targetaccount, amount);
+			    						    			
+			    			DepositTransaction.setDepositTransaction(depositTr);
+			    			try {
+			    				MeritBank.processTransaction(depositTr);
+			    			}catch(Exception e) {
+			    				System.out.println("Exception caught in deposit");
+			    			}
+			    			
+			    		}else if(amount < 0) {
+			    			WithdrawTransaction withdrawTr =  new WithdrawTransaction(targetaccount, amount);
+			    			
+			    			WithdrawTransaction.setWithdrawTransaction(withdrawTr);
+			    			try {
+			    				withdrawTr.setAmount(Math.abs(amount));
+			    				MeritBank.processTransaction(withdrawTr);
+			    			}catch(Exception e) {
+			    				System.out.println("Exception caught in withdraw");
+			    			}
+			    		}else {
+			    			System.out.println("Amount 0 can not be deposited or withdraw");
+			    		}
+			    	}
+			    	// transfer
+			    	else {
+			    		sourceAccount = getBankAccount(srcAccNum);
+			    		targetaccount = getBankAccount(tarAccNum);
+			    		
+			    		TransferTransaction transferTr = new TransferTransaction(sourceAccount,targetaccount, amount);
+			    		
+			    		
+			    		TransferTransaction.setTransferTransaction(transferTr);
+			    		try {
+			    			MeritBank.processTransaction(transferTr);
+			    		}catch(Exception e){
+			    			System.out.println("Exception caught in transfer");
+			    		}
+			    	}
 					
 				}
 				
-				
 			}
 			
+		//	System.out.println("--------------Account Balances---------------");
+			
+		//	for(BankAccount ba : bankAccountList) {
+		//		System.out.println(ba.getBalance());
+		//	}
+					
+			
+		//	System.out.println("--------------Account Balances---------------");
+			
 			reader.close();
-			System.out.println("lasttttt");
+			//System.out.println("lasttttt");
 			return true;
 		}catch(NumberFormatException e) {
 			System.out.println("Number Format exception : Message -- :" +e.getMessage() );
@@ -178,7 +288,8 @@ public class MeritBank {
 		}
 				
 		catch(Exception e) {
-			//System.out.println(e.getLocalizedMessage());
+			System.out.println("Ecxception : "+e.getMessage());
+			e.printStackTrace();
 			return false;
 		}finally {
 			
@@ -195,19 +306,58 @@ public class MeritBank {
 			throws NegativeAmountException, ExceedsAvailableBalanceException, 
 						ExceedsFraudSuspicionLimitException {
 		
+		//System.out.println("inside process transaction");
+		//System.out.println("checking amount : "+ transaction.getAmount());
 		if(transaction.getAmount() < 0 ) {
 			throw new NegativeAmountException();
 		}
 		
-		if(transaction.getAmount() > transaction.getTargetAccount().getBalance()) {
-			throw new ExceedsAvailableBalanceException();
+		
+		  if(transaction.getAmount() > 1000) {
+			  throw new ExceedsFraudSuspicionLimitException(); 
+		  }
+		 
+		if(transaction instanceof DepositTransaction) {
+			//System.out.println("Inside Deposit process transaction");
+			//BankAccount.addTransaction(transaction);
+			DepositTransaction.setDepositTransaction(transaction);
+			
+			BankAccount acc = transaction.getTargetAccount();
+			
+			acc.deposit(transaction.getAmount());
+			
+			return true;
 		}
-		
-		if(transaction.getAmount() >= 1000) {
-			throw new ExceedsFraudSuspicionLimitException();
+		if(transaction instanceof WithdrawTransaction) {
+			if(transaction.getAmount() > transaction.getSourceAccount().getBalance()) {
+			  throw new ExceedsAvailableBalanceException();
+			}
+			 
+			WithdrawTransaction.setWithdrawTransaction(transaction);
+			
+			BankAccount acc = transaction.getTargetAccount();
+			double withAmount = Math.abs(transaction.getAmount());
+			acc.withdraw(withAmount);
+			
+			//System.out.println("Inside withdrawal process transaction");
+			return true;
 		}
-		
-		
+		if(transaction instanceof TransferTransaction) {
+			  if(transaction.getAmount() > transaction.getSourceAccount().getBalance()) {
+				  throw new ExceedsAvailableBalanceException(); 
+			  }
+			TransferTransaction.setTransferTransaction(transaction);
+			BankAccount srcAccount = transaction.getSourceAccount();
+			BankAccount tarAccount = transaction.getTargetAccount();
+			
+			double transferAmount = Math.abs(transaction.getAmount());
+			
+			srcAccount.withdraw(transferAmount);
+			tarAccount.deposit(transferAmount);
+			
+			//System.out.println("inside transfer");
+			return true;
+		}
 		
 		return false;
 		
@@ -220,8 +370,8 @@ public class MeritBank {
 	}
 	//added for assignment 4
 	public static BankAccount getBankAccount(long accountId) {
-		
-		return null; // if account not found
+		BankAccount ba = bankAccountList.get((int) accountId-1);
+		return ba; // if account not found
 	}
 
 
@@ -253,13 +403,17 @@ public class MeritBank {
 		 * accountHolders[i] = accountHolders[j]; accountHolders[j] = temp; } } }
 		 */
 		Collections.sort(accHolderList);
-		return (AccountHolder[]) (accHolderList.toArray());
+		
+		AccountHolder[] accHolderArray = new AccountHolder[accHolderList.size()];
+		accHolderList.toArray(accHolderArray);
+		
+		return accHolderArray;
 	}
 
 	static void setNextAccountNumber(long nextAccountNumber) {
 		//System.out.println("nextAccountNumber before setting : "+nextAccountNumber);
 		MeritBank.nextAccountNumber = nextAccountNumber++;
-		System.out.println("next account number set");
+		//System.out.println("next account number set");
 		//System.out.println("nextAccountNumber after setting : "+nextAccountNumber);
 	}
 

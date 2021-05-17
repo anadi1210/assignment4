@@ -19,11 +19,20 @@ public abstract class Transaction {
 	}
 	
 	public Transaction(BankAccount targetAccount2, double amount2) {
+		this.sourceAccount = targetAccount2;
 		this.targetAccount = targetAccount2;
 		this.amount = amount2;
 	}
 
-
+	public Transaction(BankAccount sourceAccount, BankAccount targetAccount, double amount) {
+		this.sourceAccount = sourceAccount;
+		this.targetAccount = targetAccount;
+		this.amount = amount;
+	}
+	
+	
+	
+	
 	public abstract void process() throws NegativeAmountException, 
 									ExceedsAvailableBalanceException, 	
 									ExceedsFraudSuspicionLimitException;

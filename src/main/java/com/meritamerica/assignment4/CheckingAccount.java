@@ -46,6 +46,8 @@ public class CheckingAccount extends BankAccount{
 			
 			
 			CheckingAccount checkingAccount = new CheckingAccount(accountNumber,balance,interestRate,date);
+			
+			
 			//System.out.println("CheckingAccount call number : "+counter);
 			
 			return checkingAccount;
@@ -56,6 +58,7 @@ public class CheckingAccount extends BankAccount{
 		
 		
 	}
+	
 	
 
 	// This method  will receive the amount to be withdrawn and will return boolean value as output

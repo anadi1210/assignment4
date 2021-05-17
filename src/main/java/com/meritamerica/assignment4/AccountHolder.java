@@ -51,7 +51,7 @@ public class AccountHolder implements Comparable<AccountHolder>{
 			String lName = dataSplit[2];
 			String ssn = dataSplit[3];
 			AccountHolder accountHolder = new AccountHolder(fName,mName,lName,ssn);
-			System.out.println("Account holder added -- details : "+accountHolder.firstName +" "+ accountHolder.lastName + " "+ accountHolder.SSN);
+			//System.out.println("Account holder added -- details : "+accountHolder.firstName +" "+ accountHolder.lastName + " "+ accountHolder.SSN);
 			MeritBank.addAccountHolder(accountHolder);
 			//System.out.println("account holder call number : "+counter);
 			
@@ -173,7 +173,11 @@ public class AccountHolder implements Comparable<AccountHolder>{
 	 * Updated for Assignment 4
 		1. Should add a deposit transaction with the opening balance
 	 */
-	CDAccount addCDAccount(CDOffering offering, double openingBalance) {
+	CDAccount addCDAccount(CDOffering offering, double openingBalance) throws ExceedsFraudSuspicionLimitException{
+		if(openingBalance > 1000) {
+			throw new ExceedsFraudSuspicionLimitException();
+		}
+		
 		cdAccount = new CDAccount(offering, openingBalance);
 		addCDAccount(cdAccount);
 		return cdAccount;
@@ -184,7 +188,10 @@ public class AccountHolder implements Comparable<AccountHolder>{
 	 *
 		1. Should add a deposit transaction with the opening balance
 	 */
-	CDAccount addCDAccount(CDAccount cdAccount) {
+	CDAccount addCDAccount(CDAccount cdAccount) throws ExceedsFraudSuspicionLimitException{
+		if(cdAccount.getBalance() > 1000) {
+			throw new ExceedsFraudSuspicionLimitException();
+		}
 		
 		CDAccount[] temp = new CDAccount[this.cdAccountArray.length + 1];
 		for(int i = 0; i<cdAccountArray.length; i++)

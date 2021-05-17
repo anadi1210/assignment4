@@ -7,6 +7,7 @@ public class FraudQueue {
 	public FraudQueue() {
 		
 	}
+	
 	public void addTransaction(Transaction transaction) {
 		
 	}

@@ -15,7 +15,7 @@ public abstract class BankAccount {
 	protected Date openedOn;
 	
 	//added for assignment 4
-	protected List<Transaction> transactionList = new ArrayList<Transaction>();
+	protected static List<Transaction> transactionList = new ArrayList<Transaction>();
 
 	
 	//private Date openedOn;
@@ -80,12 +80,14 @@ public abstract class BankAccount {
 	}
 	
 	//added for assignment 4
-	public void addTransaction(Transaction transaction) {
+	public static void addTransaction(Transaction transaction) {
+		
+		transactionList.add(transaction);
 		
 	}
 
 	//added for assignment 4
-	public List<Transaction> getTransactions(){
+	public static List<Transaction> getTransactions(){
 		
 		return transactionList;
 	}
